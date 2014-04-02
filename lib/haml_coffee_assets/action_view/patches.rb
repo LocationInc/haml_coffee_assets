@@ -14,10 +14,13 @@ class ::ActionView::Template
       raise e
     else
       assigns  = view.respond_to?(:assigns) ? view.assigns : {}
-      template = self
+      # This line differed and broke easy debugging of view-level errors when
+      # it wasn't identical to our current version of actionpack.
+      # This one line is the whole point of the fork.
+      template = @virtual_path ? refresh(view) : self
 
       # Here's the patch: if the javascript runtime throws an error
-      # during compilation, we get to this handler but our view 
+      # during compilation, we get to this handler but our view
       # doesn't have a lookup_context - thus throwing a very hard
       # to debug error in Template#refresh. To circumvent, ensure the
       # view responds to lookup_context before refreshing.
